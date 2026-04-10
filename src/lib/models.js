@@ -75,6 +75,7 @@ export const DESIRED_MODELS = {
   "together/Qwen/Qwen3.5-9B": { alias: "Qwen3.5 9B (Together)" },
   "together/Qwen/Qwen3.5-27B": { alias: "Qwen3.5 27B (Together)" },
   "together/Qwen/Qwen3.5-35B-A3B": { alias: "Qwen3.5 35B A3B (Together)" },
+  "ignas_efa0/Qwen/Qwen3.5-35B-A3B-fe83cccd": { alias: "Qwen3.5 35B A3B (Dedicated)" },
   "together/Qwen/Qwen3.5-397B-A17B": { alias: "Qwen3.5 397B (Together)" },
   "together/Qwen/Qwen3-235B-A22B-FP8": { alias: "Qwen3 235B (Together)" },
   "together/moonshotai/Kimi-K2.5": { alias: "Kimi K2.5 (Together)" },
@@ -192,8 +193,8 @@ export const PROVIDER_DEFAULTS = [
 export const AI_PROVIDER_MODEL_MAP = {
   anthropic: "anthropic/claude-opus-4-6",
   openai: "openai/gpt-5.2",
-  gemini: "google/gemini-3.1-pro-preview",
-  google: "google/gemini-3.1-pro-preview",
+  gemini: "google/gemma-4-31b-it",
+  google: "google/gemma-4-31b-it",
   openrouter: "openrouter/anthropic/claude-sonnet-4-5",
   deepseek: "deepseek/deepseek-chat",
   moonshot: "moonshot/kimi-k2.5",
