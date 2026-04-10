@@ -305,29 +305,38 @@ function patchOpenClawJson() {
     `[bootstrap] Default model: ${modelOverride}${modelOverride === HARDCODED_MODEL ? " (HARDCODED)" : " (from AI_MODEL env var)"}`
   );
 
-  // Register Gemma models with Gemini provider so OpenClaw can resolve them
+  // Register Gemma models with Gemini provider so OpenClaw can resolve them.
   // The Gemini API serves both Gemini and Gemma models, but OpenClaw only knows
-  // about Gemini models by default. We must explicitly register Gemma model IDs.
+  // about Gemini models by default. We must explicitly register Gemma model IDs
+  // with baseUrl and api: "google-generative-ai" so OpenClaw validates the config.
+  // Ref: https://dev.to/akartit/how-to-add-gemma-4-models-to-openclaw-fix-missing-model-error-1b3l
   if (process.env.AI_PROVIDER?.trim()?.toLowerCase() === "gemini" ||
       process.env.AI_PROVIDER?.trim()?.toLowerCase() === "google") {
     merged.models = merged.models || {};
     merged.models.mode = "merge";
     merged.models.providers = merged.models.providers || {};
+    // Ensure the google provider has the required baseUrl
     if (!merged.models.providers.google) {
-      merged.models.providers.google = { models: [] };
+      merged.models.providers.google = {
+        baseUrl: "https://generativelanguage.googleapis.com/v1beta",
+        models: [],
+      };
+    }
+    if (!merged.models.providers.google.baseUrl) {
+      merged.models.providers.google.baseUrl = "https://generativelanguage.googleapis.com/v1beta";
     }
     const googleModels = merged.models.providers.google.models || [];
     const gemmaIds = new Set(googleModels.map((m) => m.id));
     const gemmaToAdd = [
-      { id: "gemma-4-31b-it", name: "Gemma 4 31B", reasoning: false, contextWindow: 256000, maxTokens: 32768 },
-      { id: "gemma-4-26b-a4b-it", name: "Gemma 4 26B MoE", reasoning: false, contextWindow: 256000, maxTokens: 32768 },
-      { id: "gemma-4-e4b-it", name: "Gemma 4 E4B", reasoning: false, contextWindow: 256000, maxTokens: 32768 },
+      { id: "gemma-4-31b-it", name: "Gemma 4 31B", api: "google-generative-ai", reasoning: true, input: ["text", "image"], contextWindow: 262144, maxTokens: 131072 },
+      { id: "gemma-4-26b-a4b-it", name: "Gemma 4 26B MoE", api: "google-generative-ai", reasoning: true, input: ["text", "image"], contextWindow: 262144, maxTokens: 262144 },
+      { id: "gemma-4-e4b-it", name: "Gemma 4 E4B", api: "google-generative-ai", reasoning: false, input: ["text"], contextWindow: 262144, maxTokens: 32768 },
     ];
     for (const m of gemmaToAdd) {
       if (!gemmaIds.has(m.id)) googleModels.push(m);
     }
     merged.models.providers.google.models = googleModels;
-    console.log("[bootstrap] Gemma 4 models registered with Gemini/Google provider");
+    console.log("[bootstrap] Gemma 4 models registered with Gemini/Google provider (baseUrl + google-generative-ai api)");
   }
 
   // Register DeepSeek models with native provider so OpenClaw can resolve them
