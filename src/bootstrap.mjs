@@ -290,11 +290,11 @@ function patchOpenClawJson() {
   }
 
   // AI_MODEL env var overrides the provider default (used by fleet deployments)
-  // HARDCODED: Always use Gemma 4 31B as the primary model for this agent.
+  // HARDCODED: Always use Gemma 4 31B via Together AI as the primary model for this agent.
   // The AI_MODEL env var and AI_PROVIDER_MODEL_MAP fallback were both failing
-  // to set the correct model — Railway dashboard env vars override railway.toml,
-  // and the gemini provider maps to gemini-3.1-pro-preview by default.
-  const HARDCODED_MODEL = "google/gemma-4-31b-it";
+  // to set the correct model — Railway dashboard env vars override railway.toml.
+  // Provider: Together AI (TOGETHER_API_KEY).
+  const HARDCODED_MODEL = "together/google/gemma-4-31b-it";
   const modelOverride = process.env.AI_MODEL?.trim() || HARDCODED_MODEL;
 
   merged.agents.defaults.model = {
@@ -366,6 +366,9 @@ function patchOpenClawJson() {
       apiKey: "${TOGETHER_API_KEY}",
       api: "openai-completions",
       models: [
+        { id: "google/gemma-4-31b-it", name: "Gemma 4 31B", reasoning: true, input: ["text", "image"], contextWindow: 262144, maxTokens: 131072 },
+        { id: "google/gemma-4-26b-a4b-it", name: "Gemma 4 26B MoE", reasoning: true, input: ["text", "image"], contextWindow: 262144, maxTokens: 262144 },
+        { id: "google/gemma-4-e4b-it", name: "Gemma 4 E4B", reasoning: false, input: ["text"], contextWindow: 262144, maxTokens: 32768 },
         { id: "Qwen/Qwen3.5-9B", name: "Qwen3.5 9B", reasoning: false, contextWindow: 262144, maxTokens: 32768 },
         { id: "Qwen/Qwen3.5-27B", name: "Qwen3.5 27B", reasoning: false, contextWindow: 262144, maxTokens: 32768 },
         { id: "Qwen/Qwen3.5-35B-A3B", name: "Qwen3.5 35B A3B", reasoning: false, contextWindow: 262144, maxTokens: 32768 },
@@ -376,18 +379,8 @@ function patchOpenClawJson() {
         { id: "deepseek/deepseek-r1", name: "DeepSeek R1", reasoning: true, contextWindow: 131072, maxTokens: 32768 },
       ],
     };
-    console.log("[bootstrap] Together AI provider configured with Qwen3.5 models");
+    console.log("[bootstrap] Together AI provider configured with Gemma 4 + Qwen3.5 models");
 
-    // Dedicated endpoint for Qwen3.5 35B A3B (same Together API, account-scoped model ID)
-    merged.models.providers.ignas_efa0 = merged.models.providers.ignas_efa0 || {
-      baseUrl: "https://api.together.xyz/v1",
-      apiKey: "${TOGETHER_API_KEY}",
-      api: "openai-completions",
-      models: [
-        { id: "Qwen/Qwen3.5-35B-A3B-fe83cccd", name: "Qwen3.5 35B A3B (Dedicated)", reasoning: false, contextWindow: 262144, maxTokens: 32768 },
-      ],
-    };
-    console.log("[bootstrap] Together AI dedicated endpoint configured for Qwen3.5 35B A3B");
   }
 
   // Always rewrite agents.list so profile/alsoAllow fixes take effect on every redeploy.
