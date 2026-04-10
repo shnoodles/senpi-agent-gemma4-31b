@@ -305,6 +305,31 @@ function patchOpenClawJson() {
     `[bootstrap] Default model: ${modelOverride}${modelOverride === HARDCODED_MODEL ? " (HARDCODED)" : " (from AI_MODEL env var)"}`
   );
 
+  // Register Gemma models with Gemini provider so OpenClaw can resolve them
+  // The Gemini API serves both Gemini and Gemma models, but OpenClaw only knows
+  // about Gemini models by default. We must explicitly register Gemma model IDs.
+  if (process.env.AI_PROVIDER?.trim()?.toLowerCase() === "gemini" ||
+      process.env.AI_PROVIDER?.trim()?.toLowerCase() === "google") {
+    merged.models = merged.models || {};
+    merged.models.mode = "merge";
+    merged.models.providers = merged.models.providers || {};
+    if (!merged.models.providers.google) {
+      merged.models.providers.google = { models: [] };
+    }
+    const googleModels = merged.models.providers.google.models || [];
+    const gemmaIds = new Set(googleModels.map((m) => m.id));
+    const gemmaToAdd = [
+      { id: "gemma-4-31b-it", name: "Gemma 4 31B", reasoning: false, contextWindow: 256000, maxTokens: 32768 },
+      { id: "gemma-4-26b-a4b-it", name: "Gemma 4 26B MoE", reasoning: false, contextWindow: 256000, maxTokens: 32768 },
+      { id: "gemma-4-e4b-it", name: "Gemma 4 E4B", reasoning: false, contextWindow: 256000, maxTokens: 32768 },
+    ];
+    for (const m of gemmaToAdd) {
+      if (!gemmaIds.has(m.id)) googleModels.push(m);
+    }
+    merged.models.providers.google.models = googleModels;
+    console.log("[bootstrap] Gemma 4 models registered with Gemini/Google provider");
+  }
+
   // Register DeepSeek models with native provider so OpenClaw can resolve them
   if (process.env.AI_PROVIDER?.trim()?.toLowerCase() === "deepseek") {
     merged.models = merged.models || {};
