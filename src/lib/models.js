@@ -177,7 +177,7 @@ export const DESIRED_MODELS = {
 export const PROVIDER_DEFAULTS = [
   { key: "ANTHROPIC_API_KEY", model: "anthropic/claude-opus-4-6" },
   { key: "OPENAI_API_KEY", model: "openai/gpt-5.2" },
-  { key: "GEMINI_API_KEY", model: "google/gemini-3.1-pro-preview" },
+  { key: "GEMINI_API_KEY", model: "google/gemma-4-31b-it" },
   { key: "XAI_API_KEY", model: "xai/grok-3" },
   { key: "MISTRAL_API_KEY", model: "mistral/mistral-large-latest" },
   { key: "GROQ_API_KEY", model: "groq/llama-3.3-70b" },

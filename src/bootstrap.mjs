@@ -290,11 +290,11 @@ function patchOpenClawJson() {
   }
 
   // AI_MODEL env var overrides the provider default (used by fleet deployments)
-  // HARDCODED: Always use Gemma 4 31B via Together AI as the primary model for this agent.
+  // HARDCODED: Always use Gemma 4 31B via Google Gemini API as the primary model.
   // The AI_MODEL env var and AI_PROVIDER_MODEL_MAP fallback were both failing
   // to set the correct model — Railway dashboard env vars override railway.toml.
-  // Provider: Together AI (TOGETHER_API_KEY).
-  const HARDCODED_MODEL = "together/google/gemma-4-31b-it";
+  // Provider: Gemini (GEMINI_API_KEY). Gemma models are served via the same API.
+  const HARDCODED_MODEL = "google/gemma-4-31b-it";
   const modelOverride = process.env.AI_MODEL?.trim() || HARDCODED_MODEL;
 
   merged.agents.defaults.model = {
